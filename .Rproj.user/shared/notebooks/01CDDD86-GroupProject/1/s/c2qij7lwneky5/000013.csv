@@ -1,0 +1,6 @@
+"0","#load dataset from the csv file"
+"0","tesla <- read.csv(""tsla_raw_data.csv"")"
+"0","df <- data.frame(tesla)"
+"0",""
+"0","#check dateframe quickly"
+"0","head(df)"

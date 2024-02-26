@@ -1,0 +1,6 @@
+"0","# Create time series plot for volume over time"
+"0","ggplot(df, aes(x = date, y = volume)) +"
+"0","  geom_line(color = ""blue"") +"
+"0","  labs(title = ""Time Series Plot of Tesla Trading Volume"","
+"0","       x = ""Date"","
+"0","       y = ""Volume"")"
