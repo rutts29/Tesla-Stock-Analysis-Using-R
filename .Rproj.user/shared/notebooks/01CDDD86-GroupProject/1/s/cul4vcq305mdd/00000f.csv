@@ -1,7 +1,0 @@
-"0","# Loop through each column in the dataframe and create Q-Q plot"
-"0","for (col in names(df)) {"
-"0","  if (is.numeric(df[[col]])) {"
-"0","    # Create a Q-Q plot for the current column with column name as label"
-"0","    qqnorm(df[[col]], main = paste(""Q-Q Plot for"", col))"
-"0","  }"
-"0","}"

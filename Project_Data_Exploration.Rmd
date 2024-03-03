@@ -1,6 +1,6 @@
 ---
 title: "GroupProject"
-author: "Xiaohong Deng"
+author: "Ruttansh Bhatelia, Xiaohong Deng"
 date: "2024-02-06"
 output: html_document
 ---
@@ -9,11 +9,13 @@ output: html_document
 
 ## Section1: Data Exploration:
 
-### 1- Write an introduction to your dataset and research topic:
+### 1- Introduction
 
 using the metadata and references from the literature. - This introduction should also include the rationale behind choosing this data set and topic. - You might want to research the topic before using the dataset. - Please use peer-reviewed sources as references (journal articles, books, government websites, etc.)
 
-**Solution:** Please refer to the project report.
+**Solution:**
+
+Tesla, Inc., founded by Elon Musk and his partners, has experienced remarkable growth in market value, making its stock a focal point in investment circles. As stockholders, we are keen on delving into the intricacies of Tesla's stock performance and understanding the factors shaping its market behavior. The dataset, sourced from kaggle, encompasses Tesla's stock prices from its initial public offering (IPO) to August 15, 2023. It comprises essential parameters such as date, open, high, low, close, volume, adjusted_close, change_percent, and avg_vol_20d, providing a comprehensive perspective on Tesla's stock performance over time. This project will analyze the Tesla stock dataset across five phases: Data Exploration, Hypothesis Testing, Deriving Insights, Discussion and Conclusion, and Presentation.
 
 ### 2- Data summarization:
 
@@ -83,7 +85,7 @@ ggplotly(g)
 
 **Observation:**
 
--   Tesla Prices dropped suddenly on 2020/08/31 and 2022/08/25 because of stock splits. These splits made each existing share into multiple shares, causing the price per share to decrease. For example, if you had one TSLA share before August 31st, 2020, you'd now have 5 shares.
+-   Tesla Prices dropped suddenly on 2020/08/31 and 2022/08/25 because of stock splits(5-for-1 and 3-for-1, respectively). These splits made each existing share into multiple shares, causing the price per share to decrease. For example, if you had one TSLA share before August 31st, 2020, you'd now have 3*5=15 shares.
 
 -   To keep the historical stock data accurate and avoid distortions from stock splits, the original dataset "tsla_raw_data" would be adjusted to ensure a clearer picture of Tesla's stock performance over time.
 
@@ -205,6 +207,8 @@ corrplot(corr_mat, method="square")
 
 **Observation:**
 
+-   The ? message indicates the presence of null values in the 'change_percent' column and the 'avg_vol_20d' column, which should be addressed during data preparation before proceeding with further analysis.
+
 -   The splot indicates that there is strong positive linear relationship between each pairs of "open," "high," "low," and "close".
 
 -   A moderate positive linear relationship is observed between 'volume' and 'avg_vol_20d'.
@@ -221,25 +225,62 @@ Data quality: based on the values and visualizations, discuss the quality of you
 
 #### 4.1) Missing data
 
-Based on the result of head and summary functions, we can find that there are some missing values in the "change_percent" and "avg_vol_20d" columns, as indicated by the NA values. These missing values can impact the accuracy of our analysis, especially when calculating summary statistics or visualizing trends over time. To address this issue, we will fill in the missing values with the mean of each respective column.
+Based on the results of the head and summary functions, we can see that there are some missing values in the "change_percent" and "avg_vol_20d" columns, as indicated by the NA values. These missing values can impact the accuracy of our analysis, particularly when calculating summary statistics or visualizing trends over time. To address this issue, we can either remove these rows or perform imputation. Given that these missing values occur in the first few rows and constitute a very small portion compared to the overall volume of this dataset, we will opt to remove these rows.
 
 ```{r}
-#salculate the mean of the 'change_percent' column
-mean_change_percent <- mean(df$change_percent, na.rm = TRUE)
+# #We opted for the removal solution over imputation as it appears to be more reasonable.
 
-#fill missing values in the 'change_percent' column with the mean
-df$change_percent[is.na(df$change_percent)] <- mean_change_percent
+# #calculate the mean of the 'change_percent' column
+# mean_change_percent <- mean(df$change_percent, na.rm = TRUE)
+# 
+# #fill missing values in the 'change_percent' column with the mean
+# df$change_percent[is.na(df$change_percent)] <- mean_change_percent
+# 
+# #calculate the mean of the 'avg_vol_20d' column
+# mean_avg_vol_20d <- mean(df$avg_vol_20d, na.rm = TRUE)
+# 
+# #fill missing values in the 'avg_vol_20d' column with the mean
+# df$avg_vol_20d[is.na(df$avg_vol_20d)] <- mean_avg_vol_20d
+# 
+# #quickly check the result
+# head(df)
 
-#calculate the mean of the 'avg_vol_20d' column
-mean_avg_vol_20d <- mean(df$avg_vol_20d, na.rm = TRUE)
+```
+```{r}
+#We opted for the removal solution over imputation as it appears to be more reasonable.
 
-#fill missing values in the 'avg_vol_20d' column with the mean
-df$avg_vol_20d[is.na(df$avg_vol_20d)] <- mean_avg_vol_20d
+# Remove rows with NA values in 'change_percent' or 'avg_vol_20d' columns
+df <- df[complete.cases(df[c("change_percent", "avg_vol_20d")]), ]
 
-#quickly check the result
+# Quick check of the resulting dataframe
 head(df)
 
 ```
+
+
+
+```{r}
+#remove date column as it's not needed for correlation analysis
+df_no_date <- df[,-1]
+
+#calculate correlation matrix showing the correlation between each pair of variables
+corr_mat <- round(cor(df_no_date),2)
+corr_mat
+
+#using corrplot to show the correlation between each pair of variables
+install.packages("corrplot")
+library(corrplot)
+corrplot(corr_mat, method="square")
+```
+**Observation:**
+
+-   The splot indicates that there is strong positive linear relationship between each pairs of "open," "high," "low," and "close".
+
+-   A moderate positive linear relationship is observed between 'volume' and 'avg_vol_20d'.
+
+-   There exists a moderate positive linear relationship between 'raw_close' and each price variable ("open," "high," "low," or "close").
+
+-   For other variable pairs, the linear relationship is weak or nearly zero.
 
 #### 4.2) Inconsistency data
 
@@ -252,3 +293,9 @@ head(df_old)
 ```{r}
 head(df)
 ```
+```{r}
+#export the updated tesla dataset as tesla_updated.csv file
+write.csv(df, file = "tesla_updated.csv", row.names = FALSE)
+```
+
+

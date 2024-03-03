@@ -1,3 +1,0 @@
-"0","#load the modified dataset"
-"0","df2 <- read.csv(""tsla_split_adjusted.csv"")"
-"0","head(df2)"
