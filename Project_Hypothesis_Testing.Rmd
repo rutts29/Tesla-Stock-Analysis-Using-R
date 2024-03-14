@@ -9,22 +9,24 @@ output: html_document
 
 ## Section2: Hypothesis Testing
 
+The stock market operates as a complex ecosystem where a diverse range of investors, both large and small, independently make decisions across various investments. It appears as an organized system guided by an invisible force. Market experts contend that specific indicators, such as the Consumer Confidence Index, wars, changes in monetary policy, natural disasters, and corporate performance reports, can help explain the fluctuations in the market(Hall, 2023). So, in hypothesis testing, we'd like to check if the Russian invasion of Ukraine impacts Tesla's stock in either the long-term period or the short-term period.
+
 ### 1- Research Question and Relevant Attributes
 
 **Solution:**
 
-Research Question: Is there a statistically significant difference in the average "change_percent" of Tesla's stock before and after March 11, 2020, coinciding with the onset of the COVID-19 pandemic and the Russian invasion of Ukraine?
+Research Question 1(long-term): Is there a statistically significant difference in the average "change_percent" of Tesla's stock before and after Feb 24, 2022, coinciding with the onset of the Russian invasion of Ukraine？
+
+Research Question 2(short-term): Is there a statistically significant difference in the average "change_percent" of Tesla's stock before and after Feb 24, 2022, within a 30-day period coinciding with the onset of the Russian invasion of Ukraine
 
 Relevant Attributes:
 
 -   'change_percent': The daily percentage change in Tesla's stock price.
 -   'date': The date of the observation, used to split the dataset into two groups.
 
-### 2- Data Preparation
+### 2.1- Data Preparation for Research Question 1(long-term)
 
 **Solution:**
-
-Before conducting the hypothesis test, we need to prepare the dataset by adjusting for stock splits and removing rows with missing values in 'change_percent' and 'avg_vol_20d'.
 
 ```{r}
 #load the updated Tesla dataset
@@ -33,9 +35,9 @@ df <- read.csv("tesla_updated.csv")
 #convert date column to Date format
 df$date <- as.Date(df$date)
 
-#split the dataset into two groups: before and after March 11, 2020
-df_before <- df[df$date < as.Date("2020-03-11"), "change_percent"]
-df_after <- df[df$date >= as.Date("2020-03-11"), "change_percent"]
+#split the dataset into two groups: before and after Feb 24, 2022
+df_before <- df[df$date < as.Date("2022-02-24"), "change_percent"]
+df_after <- df[df$date >= as.Date("2022-02-24"), "change_percent"]
 
 #select a random sample to ensure both groups have the same size
 sample_size <- min(length(df_before), length(df_after))
@@ -44,13 +46,35 @@ df_before_sample <- sample(df_before, size = sample_size)
 df_after_sample <- sample(df_after, size = sample_size)
 ```
 
-### 3- Hypothesis Testing
+### 2.2- Data Preparation for Research Question 2(Short-term)
 
 **Solution:**
 
-H0: There is no significant difference in the average "change_percent" before and after August 31, 2020, considering Tesla's stock splits.
+```{r}
+# Filter the dataset to get the previous 30 days' data before Feb 24, 2022
+df_before2 <- df[df$date < as.Date("2022-02-24") & df$date >= as.Date("2022-01-11"), "change_percent"]
 
-H1: There is a significant difference in the average "change_percent" before and after August 31, 2020, considering Tesla's stock splits.
+# Filter the dataset to get the next 30 days' data after Feb 24, 2022
+df_after2 <- df[df$date >= as.Date("2022-02-24") & df$date <= as.Date("2022-04-06"), "change_percent"]
+
+```
+
+```{r}
+#length(df_before2)
+length(df_before2)
+```
+
+```{r}
+length(df_after2)
+```
+
+### 3.1 - Hypothesis Testing for Research Question 1(long-term)
+
+**Solution:**
+
+H0: There is no significant difference in the average "change_percent" before and after Feb 24, 2024, coinciding with the onset of the Russian invasion of Ukraine.
+
+H1: There is a significant difference in the average "change_percent" before and after Feb 24, 2022, coinciding with the onset of the Russian invasion of Ukraine.
 
 Test Method: Paired t-test We choose a paired t-test because we are comparing the means of two related groups (before and after the split) with the same subjects. This test is appropriate when the data points in each group are related or matched pairs.
 
@@ -64,7 +88,35 @@ t_test_result <- t.test(df_before_sample, df_after_sample, paired = TRUE)
 t_test_result
 ```
 
-Since the p-value is greater than the significance level of 0.05, we fail to reject the null hypothesis(H0). Therefore, we can conclude that there is not a significant difference in the average "change_percent" before and after March 11, 2020, coinciding with the onset of the COVID-19 pandemic and the Russian invasion of Ukraine.
+Since the p-value is greater than the significance level of 0.05, we fail to reject the null hypothesis(H0). Therefore, we can conclude that there is not a significant difference in the average "change_percent" before and after Feb 24, 2022, coinciding with the onset of the Russian invasion of Ukraine.
+
+### 3.2 - Hypothesis Testing for Research Question 2(short-term)
+
+**Solution:**
+
+H0: There is no significant difference in the average "change_percent" before and after Feb 24, 2022 within a 30-day period, coinciding with the onset of the Russian invasion of Ukraine.
+
+H1: There is a significant difference in the average "change_percent" before and after Fbe 24, 2022 within a 30-day period, coinciding with the onset of the Russian invasion of Ukraine.
+
+Test Method: Paired t-test We choose a paired t-test because we are comparing the means of two related groups (before and after the split) with the same subjects. This test is appropriate when the data points in each group are related or matched pairs.
+
+Performing the Paired t-test:
+
+```{r}
+#perform the paired t-test with the same size samples
+t_test_result2 <- t.test(df_before2, df_after2, paired = TRUE)
+
+#check the results
+t_test_result2
+
+```
+
+Since the p-value is less than the significance level of 0.05, we reject the null hypothesis(H0). Therefore, we have sufficient evidence to conclude that there is a significant difference in the average "change_percent" before and after Feb 24, 2022, within a 30-days period, coinciding with the onset of the Russian invasion of Ukraine.
+
+*In Summary:* Based on the hypothesis testing results for Research Question 1 (long-term) and Research Question 2 (short-term), we can summarize the expected impact of the Russian invasion of Ukraine on Tesla's stock:
+
+-   The Russian invasion of Ukraine is not expected to have a significant long-term impact on Tesla's stock, as indicated by the hypothesis testing for the long-time period.
+-   However, there is evidence to suggest that the invasion will cause a significant short-term impact on Tesla's stock, as indicated by the hypothesis testing for the short-term period. Within a 30-day period following the invasion, Tesla's stock is expected to experience notable changes in its "change_percent" values.
 
 ### 4- Rationale Behind Test Selection
 
@@ -78,4 +130,4 @@ The paired t-test was chosen for the following reasons:
 
 -   Same Size Samples: By randomly selecting the same number of observations for both groups, we ensure that the samples have equal size.
 
-These reasons support the selection of the paired t-test, providing a statistical method to assess the significance of the observed difference in Tesla's stock performance before and after March 11, 2020.
+These reasons support the selection of the paired t-test, providing a statistical method to assess the significance of the observed difference in Tesla's stock performance before and after Feb 24, 2022.
