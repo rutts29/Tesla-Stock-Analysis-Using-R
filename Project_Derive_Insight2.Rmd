@@ -1,7 +1,45 @@
 ---
 title: "Project_S3_2"
-author: "Xiaohong Deng"
+author: "Ruttansh Bhatelia"
 date: "2024-03-26"
 output: html_document
 ---
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(plotly)
+library(lmtest)
+install.packages("car")
 
+library(car)
+
+# Load and prepare the dataset
+df <- read.csv("tesla_updated.csv")  # Adjust the filename as necessary
+
+# Convert date column to Date format if not already
+df$date <- as.Date(df$date)
+
+# Handling missing values - omit rows with any NA values
+df <- na.omit(df)
+
+# Inspect the structure of the dataframe to confirm it's ready for analysis
+str(df)
+
+# Define the linear regression model
+model <- lm(change_percent ~ volume + open + high + low + close, data = df)
+
+# Display the summary of the model to examine coefficients and statistical significance
+summary(model)
+
+# Plotting diagnostic plots for model evaluation
+par(mfrow = c(2, 2))
+plot(model)
+
+# Checking for multicollinearity using Variance Inflation Factor
+vif_results <- vif(model)
+print(vif_results)
+
+
+# A VIF > 5 indicates high multicollinearity.
+
+```
